@@ -1,0 +1,10 @@
+{
+  "filetype": "mp3",
+  "output": "./generated/",
+  "phrases": [
+    {
+      "filename": "tes",
+      "text": "hai bagus alfiras"
+    }
+  ]
+}

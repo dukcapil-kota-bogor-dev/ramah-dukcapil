@@ -1,0 +1,149 @@
+{
+  "filetype": "mp3",
+  "output": "./generated/",
+  "phrases": [
+    {
+      "filename": "commons/anda-memilih",
+      "text": "anda memilih"
+    },
+    {
+      "filename": "commons/berikut-daftar-persyaratannya",
+      "text": "berikut daftar persyaratannya"
+    },
+
+    {
+      "filename": "items/ktp/label-ktp",
+      "text": "K T P elektronik"
+    },
+    {
+      "filename": "items/ktp/p1-ktp-baru-1",
+      "text": "Untuk pemula baru 17 tahun, belum pernah memiliki KTP-el sebelumnya"
+    },
+    {
+      "filename": "items/ktp/p1-ktp-baru-2",
+      "text": "Telah berusia 17 tahun atau lebih"
+    },
+    {
+      "filename": "items/ktp/p1-ktp-baru-3",
+      "text": "Kartu keluarga asli"
+    },
+
+    {
+      "filename": "items/kia/label-kia",
+      "text": "K I A"
+    },
+    {
+      "filename": "items/kia/desc-kia",
+      "text": "kartu identitas anak adalah dokumen identitas resmi dari negara yang wajib dimiliki oleh anak anak berusia dibawah 17 tahun"
+    },
+    {
+      "filename": "items/kia/p1-kia-baru-1",
+      "text": "Fotokopi akta kelahiran"
+    },
+    {
+      "filename": "items/kia/p1-kia-baru-2",
+      "text": "Foto anak jika anak sudah berusia 5 tahun atau lebih"
+    },
+
+    {
+      "filename": "items/akta-kelahiran/label-akta-kelahiran",
+      "text": "Akta kelahiran W N I"
+    },
+    {
+      "filename": "items/akta-kelahiran/p1-akta-kelahiran-baru-1",
+      "text": "Fotokopi surat keterangan kelahiran dari fasilitas kesehatan/kelurahan/nahkoda kapal/kapten pesawat"
+    },
+    {
+      "filename": "items/akta-kelahiran/p1-akta-kelahiran-baru-2",
+      "text": "Fotokopi buku nikah atau akta perkawinan"
+    },
+    {
+      "filename": "items/akta-kelahiran/p1-akta-kelahiran-baru-3",
+      "text": "Kartu keluarga asli"
+    },
+
+    {
+      "filename": "items/akta-kematian/label-akta-kematian",
+      "text": "Akta kematian W N I"
+    },
+    {
+      "filename": "items/akta-kematian/p1-akta-kematian-baru-1",
+      "text": "Fotokopi surat keterangan kematian dari fasilitas kesehatan/kelurahan/polisi/maskapai/KBRI"
+    },
+    {
+      "filename": "items/akta-kematian/p1-akta-kematian-baru-2",
+      "text": "KTP elektronik asli"
+    },
+    {
+      "filename": "items/akta-kematian/p1-akta-kematian-baru-3",
+      "text": "Kartu keluarga asli"
+    },
+
+    {
+      "filename": "items/kartu-keluarga/label-kartu-keluarga",
+      "text": "Kartu keluarga W N I"
+    },
+    {
+      "filename": "items/kartu-keluarga/label-kartu-keluarga-karena",
+      "text": "Kartu keluarga W N I karena"
+    },
+    {
+      "filename": "items/kartu-keluarga/p1-kartu-keluarga-perubahan-1",
+      "text": "Kartu keluarga lama (asli)"
+    },
+    {
+      "filename": "items/kartu-keluarga/p1-kartu-keluarga-perubahan-2",
+      "text": "Fotokopi bukti perubahan data (contoh: Paspor, surat pindah, ijazah, surat keterangan kerja)"
+    },
+    {
+      "filename": "items/kartu-keluarga/p1-kartu-keluarga-hilang-1",
+      "text": "Surat kehilangan dari kepolisian (yang masih berlaku dan mencantumkan NIK dan nomor kartu keluarga pemohon)"
+    },
+    {
+      "filename": "items/kartu-keluarga/p1-kartu-keluarga-rusak-1",
+      "text": "Kartu keluarga asli yang telah rusak"
+    },
+
+    {
+      "filename": "items/surat-pindah/label-surat-pindah",
+      "text": "Surat keterangan pindah warga negara indonesia"
+    },
+    {
+      "filename": "items/surat-pindah/label-surat-pindah-dk",
+      "text": "Surat keterangan pindah warga negara indonesia (dalam kota)"
+    },
+    {
+      "filename": "items/surat-pindah/label-surat-pindah-lk",
+      "text": "Surat keterangan pindah warga negara indonesia (luar kota)"
+    },
+    {
+      "filename": "items/surat-pindah/p1-surat-pindah-dk-1",
+      "text": "Mengisi formulir perpindahan F 1 kosong 3"
+    },
+    {
+      "filename": "items/surat-pindah/p1-surat-pindah-dk-2",
+      "text": "Kartu keluarga lama (asli)"
+    },
+    {
+      "filename": "items/surat-pindah/p1-surat-pindah-dk-3",
+      "text": "KTP elektronik asli"
+    },
+
+    {
+      "filename": "labels/label-alasan-rusak",
+      "text": "rusak"
+    },
+    {
+      "filename": "labels/label-alasan-perubahan",
+      "text": "perubahan"
+    },
+    {
+      "filename": "labels/label-alasan-baru",
+      "text": "baru"
+    },
+    {
+      "filename": "labels/label-alasan-hilang",
+      "text": "hilang"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  FILE_SOURCE_PATH_PROD: ./source.json
+  FILE_SOURCE_PATH_DEV: ./source-example.json
+
+tasks:
+  dev:
+    cmds:
+      - go run ./ -jsonpath="{{.FILE_SOURCE_PATH_DEV}}"
+
+  build:
+    cmds:
+      - go build -o ./dist/generate.exe ./
