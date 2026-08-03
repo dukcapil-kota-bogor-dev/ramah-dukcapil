@@ -16,14 +16,62 @@ class AudioManager {
     this.current = null;
     this.playing = false;
     this.paused = false;
-    this.volume = Config.audioVolume;
-    this.rate = Config.audioRate;
+    this.volume = 1; // default, akan di-update dari Config
+    this.rate = 1; // default, akan di-update dari Config
     this.callbacks = { preload: null, change: null, finish: null, stop: null };
 
     this.isIntro = false;
     this.introCount = 0;
     this.totalIntro = 0;
     this.introQueue = [];
+
+    // Load config dari window jika tersedia
+    this.loadConfig();
+  }
+
+  /**
+   * ==========================================
+   * Load Config dari Window
+   * ==========================================
+   */
+
+  loadConfig() {
+    if (window.Config) {
+      this.volume = window.Config.audioVolume || 1;
+      this.rate = window.Config.audioRate || 1;
+      Howler.volume(this.volume);
+    } else {
+      console.warn("[Audio] Config not found, using default values");
+      // Fallback: coba load dari localStorage atau polling
+      this.waitForConfig();
+    }
+  }
+
+  /**
+   * ==========================================
+   * Wait for Config to be available
+   * ==========================================
+   */
+
+  waitForConfig(retries = 0) {
+    if (retries > 20) {
+      console.warn(
+        "[Audio] Config not available after 20 retries, using defaults",
+      );
+      return;
+    }
+
+    if (window.Config) {
+      this.volume = window.Config.audioVolume || 1;
+      this.rate = window.Config.audioRate || 1;
+      Howler.volume(this.volume);
+      console.log("[Audio] Config loaded successfully");
+      return;
+    }
+
+    setTimeout(() => {
+      this.waitForConfig(retries + 1);
+    }, 100);
   }
 
   /**
@@ -44,22 +92,49 @@ class AudioManager {
 
   /**
    * ==========================================
+   * Get AudioFiles dari Window
+   * ==========================================
+   */
+
+  getAudioFiles() {
+    if (window.AudioFiles) {
+      return window.AudioFiles;
+    }
+    console.warn("[Audio] AudioFiles not found in window");
+    return {};
+  }
+
+  /**
+   * ==========================================
    * Preload Semua Audio dari AudioFiles (Object)
    * ==========================================
    */
 
   preload() {
-    const keys = Object.keys(AudioFiles);
+    const audioFiles = this.getAudioFiles();
+    const keys = Object.keys(audioFiles);
     const total = keys.length;
     let loaded = 0;
 
     if (total === 0) {
+      console.warn("[Audio] No audio files to preload");
       this.emit("preload", { loaded: 0, total: 0 });
       return;
     }
 
+    // Clear existing cache
+    this.cache.clear();
+
     keys.forEach((key) => {
-      const filePath = AudioFiles[key];
+      const filePath = audioFiles[key];
+
+      // Validate file path
+      if (!filePath || typeof filePath !== "string") {
+        console.warn(`[Audio] Invalid file path for key: ${key}`);
+        loaded++;
+        this.emit("preload", { loaded, total });
+        return;
+      }
 
       // Cek apakah sudah di-cache
       if (this.cache.has(key)) {
@@ -358,6 +433,27 @@ class AudioManager {
     this.cache.forEach((sound) => {
       sound.rate(rate);
     });
+  }
+
+  /**
+   * ==========================================
+   * Update Config (for dynamic updates)
+   * ==========================================
+   */
+
+  updateConfig() {
+    if (window.Config) {
+      this.volume = window.Config.audioVolume || 1;
+      this.rate = window.Config.audioRate || 1;
+      Howler.volume(this.volume);
+
+      // Update rate for all cached sounds
+      this.cache.forEach((sound) => {
+        sound.rate(this.rate);
+      });
+
+      console.log("[Audio] Config updated");
+    }
   }
 
   /**

@@ -24,7 +24,70 @@
   animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Scrollbar kustom */
+/* ==========================================
+   LOADING SCREEN STYLES
+   ========================================== */
+
+/* Loading screen transition */
+.loading-screen {
+  transition: opacity 0.5s ease-out;
+}
+
+/* Animasi shimmer untuk loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Animasi spin untuk loading spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Animasi bounce untuk success icon */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 0.8s ease-in-out infinite;
+}
+
+/* ==========================================
+   SCROLLBAR KUSTOM
+   ========================================== */
+
+/* Scrollbar untuk seluruh halaman */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -49,4 +112,39 @@
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Custom scroll untuk file list di loading screen */
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.dark .custom-scroll::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark .custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* ==========================================
+   UTILITY - untuk pointer events
+   ========================================== */
+
+.pointer-events-none {
+  pointer-events: none;
 }

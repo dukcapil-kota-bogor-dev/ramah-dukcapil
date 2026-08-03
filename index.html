@@ -6,7 +6,7 @@
 
     <title>Ramah Dukcapil</title>
 
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,10 +39,6 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Lucide Icons - Vue Component -->
-    <!-- <script src="https://unpkg.com/lucide-vue-next@latest/dist/umd/lucide-vue-next.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/lucide-vue@0.460.0/dist/umd/lucide-vue.js"></script> -->
-
     <link
       href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap"
       rel="stylesheet"
@@ -57,6 +53,97 @@
     class="h-full bg-slate-100 dark:bg-slate-950 transition-colors duration-300"
   >
     <div id="app" :class="darkMode ? 'dark' : ''" class="h-full">
+      <!-- ===================================================== -->
+      <!-- LOADING SCREEN -->
+      <!-- ===================================================== -->
+
+      <div
+        v-if="loading || isLoadingData"
+        class="fixed inset-0 z-[9999] bg-white dark:bg-slate-950 flex items-center justify-center transition-opacity duration-500"
+        :class="{'opacity-0 pointer-events-none': !loading && !isLoadingData}"
+      >
+        <div class="w-full max-w-md mx-4 text-center">
+          <!-- Logo atau Icon -->
+          <div class="mb-8 flex justify-center">
+            <div class="relative">
+              <img
+                src="https://ik.imagekit.io/kuromittsu/dukcapil-kota-bogor/logos/logo-kota-bogor.png"
+                class="w-20 h-20"
+              />
+              <img
+                src="https://ik.imagekit.io/kuromittsu/dukcapil-kota-bogor/logos/logo-dukcapil.png"
+                class="w-20 h-20 absolute -right-4 -top-4"
+              />
+            </div>
+          </div>
+
+          <!-- Title -->
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+            RAMAH DUKCAPIL
+          </h2>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mb-8">
+            Ragam Informasi & Administrasi Mudah dengan Suara
+          </p>
+
+          <!-- Progress Bar -->
+          <div class="relative">
+            <div
+              class="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden"
+            >
+              <div
+                class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out"
+                :style="{ width: loadingPercentage + '%' }"
+              ></div>
+            </div>
+
+            <!-- Percentage -->
+            <div
+              class="mt-3 text-sm font-mono text-slate-600 dark:text-slate-400"
+            >
+              {{ Math.round(loadingPercentage) }}%
+            </div>
+
+            <!-- Status Text -->
+            <div
+              class="mt-2 text-sm text-slate-500 dark:text-slate-400 min-h-[1.5rem]"
+            >
+              {{ loadingStatus }}
+            </div>
+
+            <!-- File List -->
+            <div
+              class="mt-6 space-y-1.5 text-left max-h-[120px] overflow-y-auto custom-scroll"
+            >
+              <div
+                v-for="file in loadingFiles"
+                :key="file"
+                class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"
+              >
+                <span class="text-green-500">✓</span>
+                <span>{{ file }}</span>
+              </div>
+              <div
+                v-if="loadingFiles.length < totalFiles && !loadingStatus.includes('Selesai')"
+                class="flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500 animate-pulse"
+              >
+                <span class="text-blue-400">●</span>
+                <span>Memuat...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading Spinner (small) -->
+          <div v-if="loadingPercentage < 100" class="mt-8 flex justify-center">
+            <div
+              class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+            ></div>
+          </div>
+
+          <!-- Success icon -->
+          <div v-else class="mt-8 text-4xl animate-bounce">✅</div>
+        </div>
+      </div>
+
       <!-- ===================================================== -->
       <!-- HEADER -->
       <!-- ===================================================== -->
@@ -77,10 +164,10 @@
 
           <div>
             <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
-              {{ config.appName }}
+              {{ config ? config.appName : 'APP' }}
             </h1>
             <p class="text-slate-500 dark:text-slate-400">
-              {{ config.appNameAlias }}
+              {{ config ? config.appNameAlias : '' }}
             </p>
           </div>
         </div>
@@ -96,6 +183,23 @@
               - {{ today }}
             </div>
           </div>
+
+          <!-- Refresh Data Button -->
+          <button
+            @click="reloadData"
+            :disabled="isLoadingData"
+            class="rounded-full px-4 py-3 flex items-center gap-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-800/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Refresh data dari server"
+          >
+            <span class="text-xl" :class="{'animate-spin': isLoadingData}"
+              >🔄</span
+            >
+            <span
+              class="font-semibold text-green-700 dark:text-green-300 text-sm"
+            >
+              {{ isLoadingData ? 'Memuat...' : 'Refresh Data' }}
+            </span>
+          </button>
 
           <!-- Theme -->
           <button
@@ -122,7 +226,6 @@
         <aside
           class="w-[550px] rounded-3xl bg-white dark:bg-slate-900 shadow-soft flex flex-col"
         >
-          <!-- class="w-[420px] rounded-3xl bg-white dark:bg-slate-900 shadow-soft flex flex-col" -->
           <!-- Title -->
           <div
             class="px-8 py-6 border-b border-slate-200 dark:border-slate-800"
@@ -160,7 +263,8 @@
                     {{ menu.title }}
                   </div>
                   <div class="text-md text-slate-500 dark:text-slate-400 mt-1">
-                    {{ menu.subtitle }}
+                    {{ menu.subMenus && menu.subMenus.length > 0 ?
+                    menu.subMenus.length + ' pilihan' : 'Pilih layanan' }}
                   </div>
                 </div>
 
@@ -182,6 +286,7 @@
 
         <section
           class="flex-1 rounded-3xl bg-white dark:bg-slate-900 shadow-soft overflow-hidden flex flex-col"
+          v-if="homeSlides.length > 0"
         >
           <!-- Hero -->
           <div class="relative h-[430px]">
@@ -213,7 +318,7 @@
             </div>
           </div>
 
-          <!-- ⬇️ BAGIAN INFORMASI - DIUBAH -->
+          <!-- Informasi -->
           <div class="flex-1 grid grid-cols-2 gap-6 p-8">
             <!-- Kolom Kiri: Jadwal & Informasi -->
             <div>
@@ -295,7 +400,7 @@
                 </h3>
               </div>
 
-              <!-- Daftar Kontak - Scrollable (Teks Saja) -->
+              <!-- Daftar Kontak -->
               <div class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">
                 <!-- WhatsApp -->
                 <div
@@ -342,8 +447,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- add more here -->
               </div>
             </div>
           </div>
@@ -351,7 +454,88 @@
       </main>
 
       <!-- ===================================================== -->
-      <!-- MODAL -->
+      <!-- MODAL PILIHAN SUB-MENU (BARU) -->
+      <!-- ===================================================== -->
+
+      <transition
+        enter-active-class="duration-300 ease-out"
+        leave-active-class="duration-200 ease-in"
+        enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100"
+        leave-from-class="opacity-100 scale-100"
+        leave-to-class="opacity-0 scale-95"
+      >
+        <div
+          v-if="showSubMenuModal"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-10"
+        >
+          <div
+            class="bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col"
+          >
+            <!-- HEADER -->
+            <div
+              class="px-10 py-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0"
+            >
+              <div>
+                <h2 class="text-3xl font-bold text-slate-800 dark:text-white">
+                  {{ getSubMenuTitle() }}
+                </h2>
+                <p class="text-slate-500 dark:text-slate-400">
+                  Pilih jenis layanan
+                </p>
+              </div>
+
+              <button
+                @click="closeSubMenuModal"
+                class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-2xl text-slate-600 dark:text-slate-300 flex items-center justify-center"
+              >
+                <span class="text-2xl">✕</span>
+              </button>
+            </div>
+
+            <!-- BODY - Daftar Sub Menu -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4">
+              <button
+                v-for="subMenu in selectedSubMenuParent.subMenus"
+                :key="subMenu.id"
+                @click="openSubMenu(selectedSubMenuParent, subMenu)"
+                class="group w-full rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 hover:shadow-lg p-4 text-left"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                    :style="{
+                      background: selectedSubMenuParent.color + '20'
+                    }"
+                  >
+                    <img :src="selectedSubMenuParent.icon" class="w-7 h-7" />
+                  </div>
+                  <div class="flex-1">
+                    <div
+                      class="text-lg font-bold text-slate-800 dark:text-slate-200"
+                    >
+                      {{ subMenu.label }}
+                    </div>
+                    <div
+                      class="text-sm text-slate-500 dark:text-slate-400 mt-0.5"
+                    >
+                      {{ subMenu.subtitle }}
+                    </div>
+                  </div>
+                  <div
+                    class="text-slate-400 group-hover:translate-x-1 transition"
+                  >
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </transition>
+
+      <!-- ===================================================== -->
+      <!-- MODAL INFORMASI -->
       <!-- ===================================================== -->
 
       <transition
@@ -375,10 +559,10 @@
             >
               <div>
                 <h2 class="text-3xl font-bold text-slate-800 dark:text-white">
-                  {{ selectedMenu.title }}
+                  {{ selectedMenu ? selectedMenu.title : '' }}
                 </h2>
                 <p class="text-slate-500 dark:text-slate-400">
-                  Persyaratan Pelayanan
+                  {{ selectedSubMenu ? selectedSubMenu.subtitle : '' }}
                 </p>
               </div>
 
@@ -406,7 +590,7 @@
 
                   <!-- Tombol Skip Intro -->
                   <button
-                    v-if="isIntroPlaying && selectedMenu && selectedMenu.intro && selectedMenu.intro.length > 0"
+                    v-if="isIntroPlaying && selectedSubMenu && selectedSubMenu.intro && selectedSubMenu.intro.length > 0"
                     @click="skipIntro"
                     class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold transition-all duration-200 flex items-center gap-2"
                   >
@@ -458,14 +642,14 @@
                   </div>
 
                   <div
-                    v-for="(item, index) in selectedMenu.requirements"
+                    v-for="(item, index) in selectedSubMenu.requirements"
                     :key="index"
                     :data-requirement-index="index"
                     class="rounded-2xl p-4 transition-all duration-300"
                     :class="{
-                      'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]' : index == currentRequirement && currentRequirement < selectedMenu.requirements.length && !isIntroPlaying,
+                      'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]' : index == currentRequirement && currentRequirement < selectedSubMenu.requirements.length && !isIntroPlaying,
                       'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : index < currentRequirement,
-                      'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300' : index > currentRequirement || (index == currentRequirement && currentRequirement >= selectedMenu.requirements.length) || isIntroPlaying,
+                      'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300' : index > currentRequirement || (index == currentRequirement && currentRequirement >= selectedSubMenu.requirements.length) || isIntroPlaying,
                     }"
                   >
                     <div class="flex gap-4 items-start">
@@ -476,7 +660,7 @@
                           >✅</span
                         >
                         <span
-                          v-else-if="index == currentRequirement && currentRequirement < selectedMenu.requirements.length && !isIntroPlaying"
+                          v-else-if="index == currentRequirement && currentRequirement < selectedSubMenu.requirements.length && !isIntroPlaying"
                           class="text-white animate-pulse"
                           >🔊</span
                         >
@@ -495,7 +679,7 @@
                 >
                   <div class="text-sm mb-3 text-slate-600 dark:text-slate-400">
                     {{ currentRequirement }} / {{
-                    selectedMenu.requirements.length }} Persyaratan
+                    selectedSubMenu.requirements.length }} Persyaratan
                   </div>
 
                   <div
@@ -504,7 +688,7 @@
                     <div
                       class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
                       :style="{
-                  width: (currentRequirement / selectedMenu.requirements.length * 100) + '%'
+                  width: (currentRequirement / selectedSubMenu.requirements.length * 100) + '%'
                 }"
                     ></div>
                   </div>
@@ -520,7 +704,7 @@
 
                     <!-- Tombol Skip Intro di Footer -->
                     <button
-                      v-if="isIntroPlaying && selectedMenu && selectedMenu.intro && selectedMenu.intro.length > 0"
+                      v-if="isIntroPlaying && selectedSubMenu && selectedSubMenu.intro && selectedSubMenu.intro.length > 0"
                       class="rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-[0.98] text-white px-6 py-4 font-bold transition-all duration-200 text-lg flex items-center justify-center"
                       @click="skipIntro"
                     >
@@ -537,7 +721,7 @@
                   class="flex-1 rounded-3xl overflow-hidden relative bg-slate-100 dark:bg-slate-800"
                 >
                   <img
-                    :src="selectedMenu.images[currentImage].src"
+                    :src="selectedSubMenu.images[currentImage].src"
                     class="w-full h-full object-contain"
                   />
 
@@ -562,7 +746,7 @@
                     class="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-sm flex items-center gap-2"
                   >
                     <span>🖼</span>
-                    {{ currentImage + 1 }} / {{ selectedMenu.images.length }}
+                    {{ currentImage + 1 }} / {{ selectedSubMenu.images.length }}
                   </div>
                 </div>
 
@@ -571,14 +755,14 @@
                   <div
                     class="font-bold text-lg text-slate-800 dark:text-slate-200"
                   >
-                    {{ selectedMenu.images[currentImage].caption }}
+                    {{ selectedSubMenu.images[currentImage].caption }}
                   </div>
                 </div>
 
                 <!-- Indikator Dot -->
                 <div class="mt-4 flex justify-center gap-3">
                   <button
-                    v-for="(img, index) in selectedMenu.images"
+                    v-for="(img, index) in selectedSubMenu.images"
                     :key="index"
                     @click="selectImage(index)"
                     class="rounded-full transition-all duration-200"
@@ -594,11 +778,11 @@
       </transition>
     </div>
 
-    <script src="./js/data.js"></script>
+    <!-- <script src="./js/data.js"></script> -->
     <script src="./js/audio.js"></script>
     <script src="./js/app.js"></script>
 
-    <!-- ⬅️ TAMBAHKAN: Inisialisasi Lucide Icons -->
+    <!-- Inisialisasi Lucide Icons -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         lucide.createIcons();

@@ -1,0 +1,215 @@
+[
+  {
+    "id": "kia",
+    "title": "Kartu Identitas Anak",
+    "icon": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+    "color": "#2563EB",
+    "subMenus": [
+      {
+        "id": "kia-baru",
+        "label": "Pembuatan Baru",
+        "subtitle": "Persyaratan pembuatan baru Kartu Identitas Anak",
+        "autoPlay": true,
+        "intro": ["intro-1", "label-kia", "desc-kia", "intro-2"],
+        "requirements": [
+          { "text": "Akta kelahiran", "sound": "p1-kia-baru-1" },
+          {
+            "text": "Foto anak (jika diatas 5 tahun)",
+            "sound": "p1-kia-baru-2"
+          }
+        ],
+        "images": [
+          { "src": "images/kia/kia.png", "caption": "Kartu identitas anak" },
+          { "src": "images/informasi-1.jpeg", "caption": "-" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ktp",
+    "title": "Kartu Tanda Penduduk",
+    "icon": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+    "color": "#2563EB",
+    "subMenus": [
+      {
+        "id": "ktp-baru",
+        "label": "Pembuatan Baru",
+        "subtitle": "Persyaratan pembuatan baru KTP",
+        "autoPlay": true,
+        "intro": ["intro-1", "label-ktp", "label-alasan-baru", "intro-2"],
+        "requirements": [
+          {
+            "text": "Untuk pemula baru 17 tahun, belum pernah memiliki KTP-el sebelumnya",
+            "sound": "p1-ktp-baru-1"
+          },
+          {
+            "text": "Telah berusia 17 tahun atau lebih",
+            "sound": "p1-ktp-baru-2"
+          },
+          { "text": "Kartu keluarga asli", "sound": "p1-ktp-baru-3" }
+        ],
+        "images": [{ "src": "images/informasi-1.jpeg", "caption": "-" }]
+      }
+    ]
+  },
+  {
+    "id": "kartu-keluarga",
+    "title": "Kartu Keluarga WNI",
+    "icon": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+    "color": "#2563EB",
+    "subMenus": [
+      {
+        "id": "kk-perubahan",
+        "label": "Perubahan Data",
+        "subtitle": "Persyaratan perubahan data Kartu Keluarga",
+        "autoPlay": true,
+        "intro": [
+          "intro-1",
+          "label-kartu-keluarga-karena",
+          "label-alasan-perubahan",
+          "intro-2"
+        ],
+        "requirements": [
+          {
+            "text": "Kartu keluarga lama (asli)",
+            "sound": "p1-kartu-keluarga-perubahan-1"
+          },
+          {
+            "text": "Fotokopi bukti perubahan data (contoh: Paspor, surat pindah, ijazah, surat keterangan kerja)",
+            "sound": "p1-kartu-keluarga-perubahan-2"
+          }
+        ],
+        "images": [{ "src": "images/informasi-1.jpeg", "caption": "-" }]
+      },
+      {
+        "id": "kk-hilang",
+        "label": "Hilang",
+        "subtitle": "Persyaratan karena Kartu Keluarga hilang",
+        "autoPlay": true,
+        "intro": [
+          "intro-1",
+          "label-kartu-keluarga-karena",
+          "label-alasan-hilang",
+          "intro-2"
+        ],
+        "requirements": [
+          {
+            "text": "Surat kehilangan dari kepolisian (yang masih berlaku dan mencantumkan NIK & No. KK pemohon)",
+            "sound": "p1-kartu-keluarga-hilang-1"
+          }
+        ],
+        "images": [{ "src": "images/informasi-1.jpeg", "caption": "-" }]
+      },
+      {
+        "id": "kk-rusak",
+        "label": "Rusak",
+        "subtitle": "Persyaratan karena Kartu Keluarga rusak",
+        "autoPlay": true,
+        "intro": [
+          "intro-1",
+          "label-kartu-keluarga-karena",
+          "label-alasan-rusak",
+          "intro-2"
+        ],
+        "requirements": [
+          {
+            "text": "Kartu keluarga asli yang telah rusak",
+            "sound": "p1-kartu-keluarga-rusak-1"
+          }
+        ],
+        "images": [{ "src": "images/informasi-1.jpeg", "caption": "-" }]
+      }
+    ]
+  },
+  {
+    "id": "akta-kelahiran",
+    "title": "Akta Kelahiran WNI",
+    "icon": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+    "color": "#2563EB",
+    "subMenus": [
+      {
+        "id": "akta-kelahiran-baru",
+        "label": "Pembuatan Baru",
+        "subtitle": "Persyaratan pembuatan baru Akta Kelahiran",
+        "autoPlay": true,
+        "intro": [
+          "intro-1",
+          "label-akta-kelahiran",
+          "label-alasan-baru",
+          "intro-2"
+        ],
+        "requirements": [
+          {
+            "text": "Fotokopi surat keterangan kelahiran dari fasilitas kesehatan/kelurahan/nahkoda kapal/kapten pesawat",
+            "sound": "p1-akta-kelahiran-baru-1"
+          },
+          {
+            "text": "Fotokopi buku nikah atau akta perkawinan",
+            "sound": "p1-akta-kelahiran-baru-2"
+          },
+          { "text": "Kartu keluarga asli", "sound": "p1-akta-kelahiran-baru-3" }
+        ],
+        "images": [{ "src": "images/informasi-1.jpeg", "caption": "-" }]
+      }
+    ]
+  },
+  {
+    "id": "akta-kematian",
+    "title": "Akta Kematian WNI",
+    "icon": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+    "color": "#2563EB",
+    "subMenus": [
+      {
+        "id": "akta-kematian-baru",
+        "label": "Pembuatan Baru",
+        "subtitle": "Persyaratan pembuatan baru Akta Kematian",
+        "autoPlay": true,
+        "intro": [
+          "intro-1",
+          "label-akta-kematian",
+          "label-alasan-baru",
+          "intro-2"
+        ],
+        "requirements": [
+          {
+            "text": "Fotokopi surat keterangan kematian dari fasilitas kesehatan/kelurahan/polisi/maskapai/KBRI",
+            "sound": "p1-akta-kematian-baru-1"
+          },
+          {
+            "text": "KTP elektronik asli",
+            "sound": "p1-akta-kematian-baru-2"
+          },
+          { "text": "Kartu keluarga asli", "sound": "p1-akta-kematian-baru-3" }
+        ],
+        "images": [{ "src": "images/informasi-1.jpeg", "caption": "-" }]
+      }
+    ]
+  },
+  {
+    "id": "surat-pindah",
+    "title": "Surat Keterangan Pindah",
+    "icon": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+    "color": "#2563EB",
+    "subMenus": [
+      {
+        "id": "surat-pindah-dalam-kota",
+        "label": "Pindah Dalam Kota",
+        "subtitle": "Persyaratan pindah dalam kota",
+        "autoPlay": true,
+        "intro": ["intro-1", "label-surat-pindah-dk", "intro-2"],
+        "requirements": [
+          {
+            "text": "Mengisi formulir perpindahan F 1.03",
+            "sound": "p1-surat-pindah-dk-1"
+          },
+          {
+            "text": "Kartu keluarga lama (asli)",
+            "sound": "p1-surat-pindah-dk-2"
+          },
+          { "text": "KTP elektronik asli", "sound": "p1-surat-pindah-dk-3" }
+        ],
+        "images": [{ "src": "images/informasi-1.jpeg", "caption": "-" }]
+      }
+    ]
+  }
+]

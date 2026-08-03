@@ -1,0 +1,18 @@
+{
+  "appName": "RAMAH DUKCAPIL",
+  "appNameAlias": "Ragam Informasi & Administrasi Mudah dengan Suara",
+  "autoPlay": true,
+  "autoHome": 60,
+  "carouselInterval": 5000,
+  "imageInterval": 20000,
+  "audioVolume": 1,
+  "audioRate": 1,
+  "theme": "dark",
+  "homeCarousel": [
+    {
+      "image": "images/informasi-1.jpeg",
+      "title": "IKD (Identitas Kependudukan Digital)",
+      "subtitle": "Segera miliki aplikasi identitas kependudukan digital"
+    }
+  ]
+}

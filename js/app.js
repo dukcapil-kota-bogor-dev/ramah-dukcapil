@@ -1,10 +1,12 @@
 const app = Vue.createApp({
   data() {
     return {
-      config: Config,
-      menus: Menus,
-      homeSlides: HomeCarousel,
-      audioFiles: AudioFiles,
+      fecthBaseurl: "/data/",
+
+      config: null,
+      menus: [],
+      homeSlides: [],
+      audioFiles: null,
 
       // ==========================
       // APP
@@ -12,6 +14,17 @@ const app = Vue.createApp({
 
       isReady: false,
       loading: true,
+      isLoadingData: true,
+
+      // ==========================
+      // LOADING PROGRESS
+      // ==========================
+
+      loadingProgress: 0, // 0-100
+      loadingStatus: "Memulai...", // Status text
+      loadingFiles: [], // Daftar file yang sudah di-load
+      totalFiles: 3, // Total file JSON yang akan di-load
+      loadedFiles: 0, // Jumlah file yang sudah di-load
 
       // ==========================
       // THEME
@@ -39,9 +52,17 @@ const app = Vue.createApp({
 
       showModal: false,
       selectedMenu: null,
+      selectedSubMenu: null,
       currentRequirement: 0,
       currentImage: 0,
       imageTimer: null,
+
+      // ==========================
+      // SUB MENU MODAL (PILIHAN)
+      // ==========================
+
+      showSubMenuModal: false,
+      selectedSubMenuParent: null,
 
       // ==========================
       // AUDIO
@@ -64,6 +85,12 @@ const app = Vue.createApp({
       // ==========================
 
       idleTimer: null,
+
+      // ==========================
+      // CACHE CONTROL
+      // ==========================
+
+      cacheTimestamp: Date.now(),
     };
   },
 
@@ -81,6 +108,13 @@ const app = Vue.createApp({
       if (this.totalIntro === 0) return 0;
       return Math.round((this.introCount / this.totalIntro) * 100);
     },
+    // Loading status
+    isLoading() {
+      return this.loading || this.isLoadingData;
+    },
+    loadingPercentage() {
+      return Math.min(this.loadingProgress, 100);
+    },
   },
 
   mounted() {
@@ -94,11 +128,19 @@ const app = Vue.createApp({
     ======================================
     */
 
-    init() {
-      this.$nextTick(() => {
-        // ⬅️ LOAD THEME DARI LOCALSTORAGE
-        this.loadTheme();
+    async init() {
+      this.$nextTick(async () => {
+        // Load data from JSON files
+        await this.loadAllData();
 
+        if (!this.isReady) {
+          console.error("Failed to load data");
+          this.loading = false;
+          return;
+        }
+
+        // Load theme dari localStorage
+        this.loadTheme();
         this.applyTheme();
         this.startClock();
         this.startHomeCarousel();
@@ -115,12 +157,188 @@ const app = Vue.createApp({
 
     /*
     ======================================
+    LOAD DATA FROM JSON
+    ======================================
+    */
+
+    async loadAllData() {
+      try {
+        this.isLoadingData = true;
+        this.loading = true;
+        this.loadingProgress = 0;
+        this.loadedFiles = 0;
+        this.loadingFiles = [];
+        this.totalFiles = 3;
+
+        this.updateLoadingStatus("Memuat file konfigurasi...", 10);
+
+        // Load semua file JSON dengan cache busting
+        const [configData, audioData, menusData] = await Promise.all([
+          this.fetchJSONWithProgress(
+            `${this.fecthBaseurl}config.json?_=${this.cacheTimestamp}`,
+            "Config",
+          ),
+          this.fetchJSONWithProgress(
+            `${this.fecthBaseurl}audio-files.json?_=${this.cacheTimestamp}`,
+            "Audio Files",
+          ),
+          this.fetchJSONWithProgress(
+            `${this.fecthBaseurl}menus.json?_=${this.cacheTimestamp}`,
+            "Menus",
+          ),
+        ]);
+
+        this.updateLoadingStatus("Memproses data...", 80);
+
+        // Set data
+        this.config = configData;
+        this.audioFiles = audioData;
+        this.menus = menusData;
+        this.homeSlides = configData.homeCarousel || [];
+
+        // Set global variables untuk kompatibilitas
+        window.Config = this.config;
+        window.AudioFiles = this.audioFiles;
+        window.Menus = this.menus;
+        window.HomeCarousel = this.homeSlides;
+
+        this.updateLoadingStatus("Menyiapkan audio...", 90);
+
+        // Update audio config jika audio sudah diinisialisasi
+        this.updateAudioConfig();
+
+        this.isReady = true;
+        this.isLoadingData = false;
+        this.loading = false;
+        this.loadingProgress = 100;
+
+        this.updateLoadingStatus("Selesai! ✓", 100);
+
+        console.log("✅ Data loaded successfully");
+        console.log("Config:", this.config);
+        console.log("Menus:", this.menus.length);
+        console.log("Audio files:", Object.keys(this.audioFiles).length);
+
+        // Sembunyikan loading screen setelah delay kecil
+        setTimeout(() => {
+          this.loading = false;
+        }, 500);
+      } catch (error) {
+        console.error("❌ Failed to load data:", error);
+        this.isLoadingData = false;
+        this.loading = false;
+        this.isReady = false;
+        this.loadingProgress = 0;
+        this.updateLoadingStatus("Gagal memuat data!", 0);
+      }
+    },
+
+    async fetchJSONWithProgress(url, label) {
+      const startTime = Date.now();
+
+      try {
+        this.updateLoadingStatus(
+          `Memuat ${label}...`,
+          this.loadingProgress + 5,
+        );
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status} for ${url}`);
+        }
+
+        const data = await response.json();
+
+        // Simulasi delay untuk efek visual (minimal 300ms)
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 300) {
+          await new Promise((resolve) => setTimeout(resolve, 300 - elapsed));
+        }
+
+        this.loadedFiles++;
+        this.loadingFiles.push(label);
+        this.loadingProgress = Math.min(
+          (this.loadedFiles / this.totalFiles) * 70,
+          70,
+        );
+
+        this.updateLoadingStatus(
+          `✅ ${label} selesai (${this.loadedFiles}/${this.totalFiles})`,
+          this.loadingProgress,
+        );
+
+        return data;
+      } catch (error) {
+        console.error(`Failed to fetch ${url}:`, error);
+        this.updateLoadingStatus(
+          `❌ Gagal memuat ${label}`,
+          this.loadingProgress,
+        );
+        throw error;
+      }
+    },
+
+    updateLoadingStatus(status, progress) {
+      this.loadingStatus = status;
+      if (progress !== undefined) {
+        this.loadingProgress = Math.min(progress, 100);
+      }
+    },
+
+    /*
+    ======================================
+    RELOAD DATA (Cache Update)
+    ======================================
+    */
+
+    async reloadData() {
+      // Update timestamp untuk cache busting
+      this.cacheTimestamp = Date.now();
+
+      // Reset state
+      this.loading = true;
+      this.isLoadingData = true;
+      this.loadingProgress = 0;
+      this.loadedFiles = 0;
+      this.loadingFiles = [];
+
+      this.updateLoadingStatus("Memulai refresh data...", 5);
+
+      // Close any open modals
+      this.closeAllModals();
+
+      // Reload data
+      await this.loadAllData();
+
+      // Re-initialize components that depend on data
+      if (this.isReady) {
+        this.startHomeCarousel();
+        this.preloadAudio();
+      }
+
+      // Show feedback via loading status
+      if (this.isReady) {
+        this.updateLoadingStatus("Data berhasil diperbarui! ✓", 100);
+        // Reset loading setelah delay
+        setTimeout(() => {
+          this.loading = false;
+        }, 800);
+      } else {
+        this.updateLoadingStatus("Gagal memperbarui data!", 0);
+        setTimeout(() => {
+          this.loading = false;
+        }, 1500);
+      }
+    },
+
+    /*
+    ======================================
     THEME - DENGAN LOCALSTORAGE
     ======================================
     */
 
     loadTheme() {
-      // Cek localStorage
       const savedTheme = localStorage.getItem("theme");
 
       if (savedTheme === "dark") {
@@ -128,8 +346,7 @@ const app = Vue.createApp({
       } else if (savedTheme === "light") {
         this.darkMode = false;
       } else {
-        // Jika tidak ada di localStorage, gunakan dari Config
-        this.darkMode = Config.theme === "dark";
+        this.darkMode = this.config && this.config.theme === "dark";
       }
     },
 
@@ -195,13 +412,16 @@ const app = Vue.createApp({
         clearInterval(this.homeTimer);
       }
 
+      const interval = this.config ? this.config.carouselInterval : 5000;
+
       this.homeTimer = setInterval(() => {
-        if (this.showModal) return;
+        if (this.showModal || this.showSubMenuModal) return;
         this.nextHomeSlide();
-      }, Config.carouselInterval);
+      }, interval);
     },
 
     nextHomeSlide() {
+      if (!this.homeSlides || this.homeSlides.length === 0) return;
       this.currentHomeSlide++;
       if (this.currentHomeSlide >= this.homeSlides.length) {
         this.currentHomeSlide = 0;
@@ -209,6 +429,7 @@ const app = Vue.createApp({
     },
 
     previousHomeSlide() {
+      if (!this.homeSlides || this.homeSlides.length === 0) return;
       this.currentHomeSlide--;
       if (this.currentHomeSlide < 0) {
         this.currentHomeSlide = this.homeSlides.length - 1;
@@ -231,11 +452,12 @@ const app = Vue.createApp({
 
     resetIdleTimer() {
       clearTimeout(this.idleTimer);
+      const timeout = this.config ? this.config.autoHome * 1000 : 60000;
       this.idleTimer = setTimeout(() => {
-        if (this.showModal) {
-          this.closeModal();
+        if (this.showModal || this.showSubMenuModal) {
+          this.closeAllModals();
         }
-      }, Config.autoHome * 1000);
+      }, timeout);
     },
 
     /*
@@ -295,8 +517,8 @@ const app = Vue.createApp({
         this.isIntroPlaying = false;
         this.introCount = this.totalIntro;
 
-        if (this.selectedMenu) {
-          this.currentRequirement = this.selectedMenu.requirements.length;
+        if (this.selectedSubMenu) {
+          this.currentRequirement = this.selectedSubMenu.requirements.length;
         }
       });
 
@@ -310,6 +532,18 @@ const app = Vue.createApp({
         this.introCount = introCount;
         this.totalIntro = introCount;
       });
+    },
+
+    /*
+    ======================================
+    UPDATE AUDIO CONFIG
+    ======================================
+    */
+
+    updateAudioConfig() {
+      if (window.Audio && typeof window.Audio.updateConfig === "function") {
+        window.Audio.updateConfig();
+      }
     },
 
     /*
@@ -331,6 +565,7 @@ const app = Vue.createApp({
     resetModalState() {
       this.showModal = false;
       this.selectedMenu = null;
+      this.selectedSubMenu = null;
       this.currentRequirement = 0;
       this.currentImage = 0;
       this.isPlaying = false;
@@ -340,9 +575,20 @@ const app = Vue.createApp({
       this.stopImageCarousel();
     },
 
+    resetSubMenuModalState() {
+      this.showSubMenuModal = false;
+      this.selectedSubMenuParent = null;
+    },
+
+    closeAllModals() {
+      Audio.stop();
+      this.resetModalState();
+      this.resetSubMenuModalState();
+    },
+
     /*
     ======================================
-    OPEN MENU
+    OPEN MENU - dengan sub-menu
     ======================================
     */
 
@@ -350,21 +596,43 @@ const app = Vue.createApp({
       this.resetIdleTimer();
       Audio.stop();
 
+      if (menu.subMenus && menu.subMenus.length > 0) {
+        this.selectedSubMenuParent = menu;
+        this.showSubMenuModal = true;
+        this.showModal = false;
+        return;
+      }
+
+      this.openSubMenu(menu, menu);
+    },
+
+    /*
+    ======================================
+    OPEN SUB MENU
+    ======================================
+    */
+
+    openSubMenu(parentMenu, subMenu) {
+      this.resetIdleTimer();
+      Audio.stop();
+
+      this.resetSubMenuModalState();
       this.resetModalState();
 
       this.$nextTick(() => {
-        this.selectedMenu = menu;
+        this.selectedMenu = parentMenu;
+        this.selectedSubMenu = subMenu;
         this.showModal = true;
         this.currentRequirement = 0;
         this.currentImage = 0;
         this.isPlaying = false;
         this.isIntroPlaying = false;
         this.introCount = 0;
-        this.totalIntro = menu.intro ? menu.intro.length : 0;
+        this.totalIntro = subMenu.intro ? subMenu.intro.length : 0;
 
         this.startImageCarousel();
 
-        if (menu.autoPlay) {
+        if (subMenu.autoPlay) {
           this.playAudio();
         }
       });
@@ -381,6 +649,10 @@ const app = Vue.createApp({
       this.resetModalState();
     },
 
+    closeSubMenuModal() {
+      this.resetSubMenuModalState();
+    },
+
     /*
     ======================================
     IMAGE CAROUSEL
@@ -390,10 +662,12 @@ const app = Vue.createApp({
     startImageCarousel() {
       this.stopImageCarousel();
 
-      if (Config.imageInterval > 0) {
+      const interval = this.config ? this.config.imageInterval : 20000;
+
+      if (interval > 0) {
         this.imageTimer = setInterval(() => {
           this.nextImage();
-        }, Config.imageInterval);
+        }, interval);
       }
     },
 
@@ -405,19 +679,19 @@ const app = Vue.createApp({
     },
 
     nextImage() {
-      if (!this.selectedMenu) return;
+      if (!this.selectedSubMenu) return;
       this.currentImage++;
-      if (this.currentImage >= this.selectedMenu.images.length) {
+      if (this.currentImage >= this.selectedSubMenu.images.length) {
         this.currentImage = 0;
       }
       this.resetIdleTimer();
     },
 
     previousImage() {
-      if (!this.selectedMenu) return;
+      if (!this.selectedSubMenu) return;
       this.currentImage--;
       if (this.currentImage < 0) {
-        this.currentImage = this.selectedMenu.images.length - 1;
+        this.currentImage = this.selectedSubMenu.images.length - 1;
       }
       this.resetIdleTimer();
     },
@@ -435,17 +709,17 @@ const app = Vue.createApp({
     */
 
     playAudio() {
-      if (!this.selectedMenu) return;
+      if (!this.selectedSubMenu) return;
 
       this.currentRequirement = 0;
       this.isPlaying = true;
       this.isIntroPlaying = true;
       this.introCount = 0;
-      this.totalIntro = this.selectedMenu.intro
-        ? this.selectedMenu.intro.length
+      this.totalIntro = this.selectedSubMenu.intro
+        ? this.selectedSubMenu.intro.length
         : 0;
 
-      Audio.play(this.selectedMenu);
+      Audio.play(this.selectedSubMenu);
     },
 
     /*
@@ -455,7 +729,7 @@ const app = Vue.createApp({
     */
 
     replayAudio() {
-      if (!this.selectedMenu) return;
+      if (!this.selectedSubMenu) return;
       Audio.stop();
       this.playAudio();
     },
@@ -467,7 +741,7 @@ const app = Vue.createApp({
     */
 
     updateRequirement(index, payload) {
-      if (!this.selectedMenu) return;
+      if (!this.selectedSubMenu) return;
 
       if (payload && payload.isIntro) {
         return;
@@ -475,7 +749,7 @@ const app = Vue.createApp({
 
       if (payload && payload.requirementIndex !== undefined) {
         const reqIndex = payload.requirementIndex;
-        if (reqIndex < this.selectedMenu.requirements.length) {
+        if (reqIndex < this.selectedSubMenu.requirements.length) {
           this.currentRequirement = reqIndex;
           this.scrollRequirement();
         }
@@ -491,8 +765,8 @@ const app = Vue.createApp({
     scrollRequirement() {
       setTimeout(() => {
         if (
-          this.selectedMenu &&
-          this.currentRequirement >= this.selectedMenu.requirements.length
+          this.selectedSubMenu &&
+          this.currentRequirement >= this.selectedSubMenu.requirements.length
         ) {
           const container = document.querySelector(
             ".overflow-y-auto.px-8.space-y-3",
@@ -532,11 +806,34 @@ const app = Vue.createApp({
 
     /*
     ======================================
+    GET SUB MENU TITLE
+    ======================================
+    */
+
+    getSubMenuTitle() {
+      if (!this.selectedSubMenuParent) return "";
+      return this.selectedSubMenuParent.title;
+    },
+
+    getSubMenuIcon() {
+      if (!this.selectedSubMenuParent) return "";
+      return this.selectedSubMenuParent.icon;
+    },
+
+    /*
+    ======================================
     KEYBOARD
     ======================================
     */
 
     onKeyDown(e) {
+      if (this.showSubMenuModal) {
+        if (e.key === "Escape") {
+          this.closeSubMenuModal();
+        }
+        return;
+      }
+
       if (!this.showModal) return;
 
       switch (e.key) {
